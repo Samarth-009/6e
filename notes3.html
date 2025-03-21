@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMARTH</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 90%;
+            max-width: 600px;
+        }
+        .date-box {
+            width: 90%;
+            height: 60px;
+            background: #8B5A2B;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        .box {
+            width: 90%;
+            background: #1e3d25;
+            border: 10px solid #8B5A2B;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .box ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        .box input {
+            width: 100%;
+            padding: 5px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            outline: none;
+            display: block;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px;
+            border: none;
+            background: #8B5A2B;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="date-box" id="date-box"></div>
+        <div class="box">
+            <ul>
+                <li><input type="text" oninput="saveText(1, 0)" id="text1-0"></li>
+                <li><input type="text" oninput="saveText(1, 1)" id="text1-1"></li>
+                <li><input type="text" oninput="saveText(1, 2)" id="text1-2"></li>
+                <li><input type="text" oninput="saveText(1, 3)" id="text1-3"></li>
+                <li><input type="text" oninput="saveText(1, 4)" id="text1-4"></li>
+            </ul>
+        </div>
+        <div class="box">
+            <ul>
+                <li><input type="text" oninput="saveText(2, 0)" id="text2-0"></li>
+                <li><input type="text" oninput="saveText(2, 1)" id="text2-1"></li>
+                <li><input type="text" oninput="saveText(2, 2)" id="text2-2"></li>
+                <li><input type="text" oninput="saveText(2, 3)" id="text2-3"></li>
+                <li><input type="text" oninput="saveText(2, 4)" id="text2-4"></li>
+            </ul>
+        </div>
+        <div class="buttons">
+            <button onclick="previousDate()">Previous Date</button>
+            <button onclick="saveData()">Save</button>
+            <button onclick="nextDate()">Next Date</button>
+        </div>
+    </div>
+    
+    <script>
+        let currentDate = new Date().toISOString().split('T')[0];
+        document.getElementById("date-box").innerText = currentDate;
+
+        function saveText(box, index) {
+            const text = document.getElementById(`text${box}-${index}`).value;
+            let savedData = JSON.parse(localStorage.getItem(currentDate) || '{}');
+            savedData[`text${box}-${index}`] = text;
+            localStorage.setItem(currentDate, JSON.stringify(savedData));
+        }
+
+        function loadText() {
+            let savedData = JSON.parse(localStorage.getItem(currentDate) || '{}');
+            for (let box = 1; box <= 2; box++) {
+                for (let i = 0; i < 5; i++) {
+                    document.getElementById(`text${box}-${i}`).value = savedData[`text${box}-${i}`] || "";
+                }
+            }
+        }
+
+        function saveData() {
+            alert("Data saved for " + currentDate);
+        }
+
+        function changeDate(offset) {
+            let date = new Date(currentDate);
+            date.setDate(date.getDate() + offset);
+            currentDate = date.toISOString().split('T')[0];
+            document.getElementById("date-box").innerText = currentDate;
+            loadText();
+        }
+
+        function previousDate() { changeDate(-1); }
+        function nextDate() { changeDate(1); }
+
+        window.onload = loadText;
+    </script>
+</body>
+</html>

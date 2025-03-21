@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e1e1e, #3a3a3a);
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background: #111;
+            touch-action: none;
+            width: 92vw;
+            height: auto;
+            max-height: 92vh;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        #scoreBoard {
+            color: white;
+            font-size: 22px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 18px;
+            margin-top: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background: #ff4757;
+            color: white;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #e84118;
+        }
+    </style>
+</head>
+<body>
+    <div id="scoreBoard">Score: <span id="score">0</span> | High Score: <span id="highScore">0</span></div>
+    <canvas id="gameCanvas"></canvas>
+    <button onclick="startGame()">Start Game</button>
+    <button onclick="changeSnakeColor()">Change Snake Color</button>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = Math.min(window.innerWidth * 0.92, 500);
+        canvas.height = Math.min(window.innerHeight * 0.92, 500);
+
+        const gridSize = 20;
+        let snake = [{ x: 100, y: 100 }];
+        let fruit = generateFruit();
+        let direction = "right";
+        let nextDirection = direction;
+        let moveDelay = 120;
+        let touchStartX, touchStartY;
+        let score = 0;
+        let highScore = localStorage.getItem("highScore") || 0;
+        document.getElementById("highScore").innerText = highScore;
+        let gameRunning = false;
+        let snakeColors = ["#4cd137", "#e84118", "#0097e6", "#fbc531", "#8c7ae6", "#9c88ff", "#f5f6fa", "#44bd32", "#273c75", "#ff9f1a"];
+        let currentColorIndex = 0;
+
+        function generateFruit() {
+            let newFruit;
+            do {
+                newFruit = {
+                    x: Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize,
+                    y: Math.floor(Math.random() * (canvas.height / gridSize)) * gridSize,
+                    color: `hsl(${Math.random() * 360}, 100%, 50%)`
+                };
+            } while (snake.some(segment => segment.x === newFruit.x && segment.y === newFruit.y));
+            return newFruit;
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            if (isValidDirectionChange(nextDirection)) direction = nextDirection;
+            moveSnake();
+            drawGame();
+            setTimeout(gameLoop, moveDelay);
+        }
+
+        function isValidDirectionChange(newDir) {
+            return !(
+                (direction === "up" && newDir === "down") ||
+                (direction === "down" && newDir === "up") ||
+                (direction === "left" && newDir === "right") ||
+                (direction === "right" && newDir === "left")
+            );
+        }
+
+        function moveSnake() {
+            let head = { ...snake[0] };
+            if (direction === "up") head.y -= gridSize;
+            if (direction === "down") head.y += gridSize;
+            if (direction === "left") head.x -= gridSize;
+            if (direction === "right") head.x += gridSize;
+            
+            snake.unshift(head);
+            if (head.x === fruit.x && head.y === fruit.y) {
+                fruit = generateFruit();
+                score++;
+                document.getElementById("score").innerText = score;
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem("highScore", highScore);
+                    document.getElementById("highScore").innerText = highScore;
+                }
+            } else {
+                snake.pop();
+            }
+            
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || checkCollision()) {
+                resetGame();
+            }
+        }
+
+        function checkCollision() {
+            return snake.slice(1).some(segment => segment.x === snake[0].x && segment.y === snake[0].y);
+        }
+
+        function resetGame() {
+            snake = [{ x: 100, y: 100 }];
+            direction = "right";
+            score = 0;
+            document.getElementById("score").innerText = score;
+            gameRunning = false;
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = fruit.color;
+            ctx.fillRect(fruit.x, fruit.y, gridSize, gridSize);
+            ctx.fillStyle = snakeColors[currentColorIndex];
+            snake.forEach(segment => {
+                ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
+            });
+        }
+
+        function changeSnakeColor() {
+            currentColorIndex = (currentColorIndex + 1) % snakeColors.length;
+        }
+
+        function startGame() {
+            if (!gameRunning) {
+                resetGame();
+                gameRunning = true;
+                gameLoop();
+            }
+        }
+
+        document.addEventListener("touchstart", (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener("touchend", (e) => {
+            let dx = e.changedTouches[0].clientX - touchStartX;
+            let dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                nextDirection = dx > 0 ? "right" : "left";
+            } else {
+                nextDirection = dy > 0 ? "down" : "up";
+            }
+        });
+    </script>
+</body>
+</html>

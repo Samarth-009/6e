@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hello</title>
+    <style>
+*{
+    margin: 0;
+    padding: 0;
+}
+#top{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    width: 100%;
+}
+#heading{
+    font-size: 30pxpx; 
+    font-family: Arial, Helvetica, sans-serif;  
+    color: #780000;
+}
+#main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 40px;
+    gap: 30px;
+}
+#img{
+    height: 400px;
+}
+#sama{
+    height: 100px;
+    width: 343.5px;
+    border-radius: 30px;
+    background-color: #bde0fe;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 60px;
+}
+#c{
+    color: gray;
+    font-family: sans-serif;
+    text-align: center;
+    margin-top: 50px;
+}
+    </style>
+</head>
+<body>
+    <div id="top"><h1 id="heading">CLICK BELOW ON THE EGG</h1></div>
+    <div id="main">
+        <img id="img" src="https://img.freepik.com/premium-photo/chicken-egg-isolated-white_286373-23.jpg" >
+        <div id="sama">1000</div>
+    </div>
+    <div id="c">@Copyright 2025 SAMARTH</div>
+<script>
+    let mode = 1000;
+    let btn = document.querySelector('#sama');
+    let doll = document.querySelector('#img');
+    doll.addEventListener('click',function(){
+        if(mode == 1000, mode >1){
+            mode = mode - 1;
+            btn.textContent=mode;
+        } else{
+            btn.textContent='THANK YOU';
+            btn.style.fontSize='30pxpx';
+        }
+    });
+</script>    
+</body>
+</html>
